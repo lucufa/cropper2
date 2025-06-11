@@ -52,7 +52,7 @@ class CropViewer:
 
         self.canvas_left.bind("<Motion>", self.on_mouse_move)
         self.canvas_left.bind("<Button-1>", self.save_and_progress_crop)
-        self.canvas_left.bind("<Button-3>", self.go_back)
+        self.canvas_left.bind("<Button-3>", self.restart_crop_selection)
         self.canvas_center.bind("<Button-1>", lambda e: self.select_crop(1))
         self.canvas_right.bind("<Button-1>", lambda e: self.select_crop(2))
         self.root.bind("z", lambda e: self.adjust_zoom(0.1))
@@ -129,11 +129,9 @@ class CropViewer:
     def draw_crop_rect(self):
         if self.crop_rect_id:
             self.canvas_left.delete(self.crop_rect_id)
-            self.crop_rect_id = None  # 念のためリセット
-
+            self.crop_rect_id = None
         if not self.image or self.state == "confirming":
-            return  # ここで return しても、削除は先に実行される
-
+            return
         left, top, right, bottom = self.calculate_crop_coords(self.zoom_factor)
         self.crop_rect_id = self.canvas_left.create_rectangle(
             left, top, right, bottom, outline="red", width=2
@@ -188,6 +186,16 @@ class CropViewer:
             self.save_original_copy()
             self.advance()
 
+    def restart_crop_selection(self, event=None):
+        print("案1のクロップを再設定します。")
+        self.state = "editing_1"
+        self.crop_infos.pop("1", None)
+        self.crop_infos.pop("zoom1", None)
+        self.zoom_factor = 1.0
+        self.set_gray_on_right()
+        self.update_center_preview()
+        self.draw_crop_rect()
+
     def select_crop(self, variant):
         if variant == 1:
             if "1" in self.crop_infos:
@@ -203,7 +211,6 @@ class CropViewer:
             else:
                 print("案2が未確定なので元画像をコピー保存します。")
                 self.save_original_copy()
-
         self.advance()
 
     def advance(self):
