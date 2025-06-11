@@ -55,8 +55,8 @@ class CropViewer:
         self.canvas_left.bind("<Button-3>", self.restart_crop_selection)
         self.canvas_center.bind("<Button-1>", lambda e: self.select_crop(1))
         self.canvas_right.bind("<Button-1>", lambda e: self.select_crop(2))
-        self.root.bind("z", lambda e: self.adjust_zoom(0.1))
-        self.root.bind("x", lambda e: self.adjust_zoom(-0.1))
+        self.root.bind("z", lambda e: self.adjust_zoom(0.05))
+        self.root.bind("x", lambda e: self.adjust_zoom(-0.05))
         self.root.bind("q", lambda e: self.quit())
         self.root.bind_all("<MouseWheel>", self.on_mousewheel)
 
@@ -124,7 +124,7 @@ class CropViewer:
             self.update_right_preview()
 
     def on_mousewheel(self, event):
-        self.adjust_zoom(-0.1 if event.delta > 0 else 0.1)
+        self.adjust_zoom(-0.05 if event.delta > 0 else 0.05)
 
     def draw_crop_rect(self):
         if self.crop_rect_id:
@@ -232,7 +232,7 @@ class CropViewer:
             print(f"コピー保存（1.0x）: {save_name}")
             return
 
-        zoom_suffix = f"_{zoom:.1f}x"
+        zoom_suffix = f"_{zoom:.2f}x"
         save_name = f"{name}{zoom_suffix}{ext}"
         save_path = os.path.join(self.output_dir, save_name)
 
